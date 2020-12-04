@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="row">
+        <div class="d-flex">
+            {% for object in object_list %}
+                <div class="card my-4 mx-2">
+                    <img src="{{ object.image.url }}" alt="" class="card-img-top" style="max-width: 560px">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ object.title }}</h3>
+                        <p class="card-text">{{ object.price }}</p>
+                        <button class="btn btn-success cart-change" data-product="{{ object.id }}" data-action="add">Add
+                            to
+                            Cart
+                        </button>
+                        <a href="" class="btn btn-info">View Details</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+{% endblock content %}

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row my-3">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <form action="" method="post" class="my-3" id="form">
+                        {% csrf_token %}
+                        <div class="" id="user-info">
+
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend">
+                                    <label for="name" class="input-group-text">Name</label>
+                                </div>
+                                <input type="text" name="name" class="form-control" id="name">
+                            </div>
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend">
+                                    <label for="email" class="input-group-text">Email</label>
+                                </div>
+                                <input type="email" name="email" class="form-control" id="email">
+                            </div>
+
+                        </div>
+
+                        <div class="" id="shipping-info">
+                            <h3 class="card-title">Shipping Information</h3>
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend">
+                                    <label for="address" class="input-group-text">Address</label>
+                                </div>
+                                <input type="text" name="address" class="form-control" id="address">
+                            </div>
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend">
+                                    <label for="city" class="input-group-text">City</label>
+                                </div>
+                                <input type="text" name="city" class="form-control" id="city">
+                            </div>
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend">
+                                    <label for="state" class="input-group-text">State</label>
+                                </div>
+                                <input type="text" name="state" class="form-control" id="state">
+                            </div>
+                            <div class="input-group mb-1">
+                                <div class="input-group-prepend">
+                                    <label for="zipcode" class="input-group-text">Zip-code</label>
+                                </div>
+                                <input type="text" name="zipcode" class="form-control" id="zipcode">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-success" id="form-submit">
+                                Продолжить
+                            </button>
+                        </div>
+                    </form>
+                    <div class="d-none" id="payment-info">
+                        <button class="btn btn-success" id="payment-button">Make Payment</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Order Summary</h3>
+                    <table class="table">
+                        <tbody>
+                        {% for order_item in order_items %}
+                            <tr>
+                                <th scope="row"></th>
+                                <td class="py-4 w-25"><img src="{{ order_item.product.image.url }}"
+                                                           alt="{{ order_item.product.title }}"
+                                                           style="max-width: 180px"></td>
+                                <td class="py-4 align-middle text-center">{{ order_item.product.title }}</td>
+                                <td class="py-4 align-middle text-center">{{ order_item.product.price }}</td>
+                                <td class="py-4 align-middle text-center">{{ order_item.product.price }}</td>
+                            </tr>
+                        {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                    <h3>Items: {{ order.get_total_items }}</h3>
+                    <h3>Total: {{ order.get_total_price }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const shipping = '{{ order.need_shipping }}'
+        const total = '{{ order.get_total_price }}'
+        if (shipping === 'False') {
+            document.getElementById('shipping-info').innerHTML = ''
+        }
+        if (user !== 'AnonymousUser') {
+            document.getElementById('user-info').innerHTML = ''
+        }
+        if (shipping === 'False' && user !== 'AnonymousUser') {
+            document.getElementById('form').innerHTML = ''
+            document.getElementById('payment-info').classList.remove('d-none')
+        }
+        const form = document.getElementById('form')
+        form.addEventListener('submit', function (e) {
+            e.preventDefault()
+            document.getElementById('form-submit').classList.add('d-none')
+            document.getElementById('payment-info').classList.remove('d-none')
+        })
+        document.getElementById('payment-button').addEventListener('click', function () {
+            submitFormData()
+        })
+
+        function submitFormData() {
+
+            let userFormData = {
+                name: null,
+                email: null,
+                total: total,
+            }
+            let shippingFormData = {
+                address: null,
+                state: null,
+                city: null,
+                zipCode: null,
+            }
+            if (shipping !== 'False') {
+                shippingFormData.address = form.address.value
+                shippingFormData.state = form.state.value
+                shippingFormData.city = form.city.value
+                shippingFormData.zipCode = form.zipcode.value
+            }
+            if (user === 'AnonymousUser') {
+                userFormData.name = form.name.value
+                userFormData.email = form.email.value
+
+            }
+            const  url = '/process_order/'
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({'user_form': userFormData, 'shipping_form': shippingFormData})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                alert('Transaction completed')
+                window.location.href = '{% url "product-list" %}'
+            })
+
+        }
+    </script>
+{% endblock content %}

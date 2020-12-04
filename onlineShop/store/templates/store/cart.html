@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="card my-3">
+        <div class="card-body">
+            <a href="{% url 'product-list' %}" class="btn btn-outline-secondary m-3">Продолжить покупки</a>
+            <table class="table">
+                <thead>
+                <tr class="table-info">
+                    <th>Items: {{ order.get_total_items }}</th>
+                    <th>Total: {{ order.get_total_price }}</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="card w-100">
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="text-center"></th>
+                        <th class="text-center">Image</th>
+                        <th class="text-center">Title</th>
+                        <th class="text-center">Price</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-center">Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in order_items %}
+                        <tr>
+                            <th scope="row"></th>
+                            <td class="py-4 w-35"><img src="{{ item.product.image.url }}"
+                                                       alt="{{ item.product.title }}"
+                                                       style="max-width: 250px"></td>
+                            <td class="py-4 align-middle text-center">{{ item.product.title }}</td>
+                            <td class="py-4 align-middle text-center">{{ item.product.price }}</td>
+                            <td class="py-4 align-middle text-center">
+                                <i class="fas fa-minus pr-1 cart-change" data-product="{{ item.product.id }}"
+                                   data-action="remove"></i>
+                                {{ item.quantity }}
+                                <i class="fas fa-plus pl-1 cart-change" data-product="{{ item.product.id }}"
+                                   data-action="add"></i>
+                            </td>
+                            <td class="py-4 align-middle text-center">{{ item.get_total_price }}</td>
+                        </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock content %}
